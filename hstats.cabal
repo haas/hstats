@@ -1,5 +1,5 @@
 Name:                hstats
-Version:             0.2a
+Version:             0.3
 License:             BSD3
 License-file:        LICENSE
 Author:              Marshall Beddoe
@@ -10,6 +10,7 @@ description:         A library of commonly used statistical functions
 maintainer:          mbeddoe@<nospam>gmail.com
 homepage:            http://github.com/unmarshal/hstats/ 
 hs-source-dirs:      src
-ghc-options:         -O -XBangPatterns
+ghc-options:         -O 
 exposed-Modules:     Math.Statistics
+extensions:          BangPatterns
 build-depends:       base>=2.0, haskell98
