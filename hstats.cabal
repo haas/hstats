@@ -1,0 +1,15 @@
+Name:                hstats
+Version:             0.2a
+License:             BSD3
+License-file:        LICENSE
+Author:              Marshall Beddoe
+Copyright:           Copyright (c) 2008, Marshall Beddoe
+category:            Math
+synopsis:            Statistical Computing in Haskell
+description:         A library of commonly used statistical functions
+maintainer:          mbeddoe@<nospam>gmail.com
+homepage:            http://github.com/unmarshal/hstats/ 
+hs-source-dirs:      src
+ghc-options:         -O -XBangPatterns
+exposed-Modules:     Math.Statistics
+build-depends:       base>=2.0, haskell98
