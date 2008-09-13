@@ -2,10 +2,10 @@
 
 -----------------------------------------------------------------------------
 -- Module      : Math.Statistics
--- Copyright   : (c) 2007 SFTank
+-- Copyright   : (c) 2008 Marshall Beddoe
 -- License     : BSD3
 --
--- Maintainer  : mbeddoe@<nospam>sftank.net
+-- Maintainer  : mbeddoe@<nospam>gmail.com
 -- Stability   : experimental
 -- Portability : portable
 --
