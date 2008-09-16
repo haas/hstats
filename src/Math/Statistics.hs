@@ -18,20 +18,22 @@ module Math.Statistics where
 import Data.List
 import Data.Ord (comparing)
 
--- Numerically stable mean
+-- |Numerically stable mean
 -- Thanks dmwit and ddarius for help on strictness issues
 mean :: Floating a => [a] -> a
-mean x = fst $ foldl' (\(!m, !n) x -> (m+(x-m)/(n+1),n+1)) (0,0) x
+mean x       = fst $ foldl' (\(!m, !n) x -> (m+(x-m)/(n+1),n+1)) (0,0) x
 
--- Harmonic mean
-hmean :: (Floating a) => [a] -> a
-hmean xs = fromIntegral (length xs) / (sum $ map (1/) xs)
+average = mean
 
--- Geometric mean
-gmean :: (Floating a) => [a] -> a
-gmean xs = (foldr1 (*) xs)**(1 / fromIntegral (length xs))
+-- |Harmonic mean
+harmean :: (Floating a) => [a] -> a
+harmean xs = fromIntegral (length xs) / (sum $ map (1/) xs)
 
--- Median
+-- |Geometric mean
+geomean :: (Floating a) => [a] -> a
+geomean xs = (foldr1 (*) xs)**(1 / fromIntegral (length xs))
+
+-- |Median
 median :: (Floating a, Ord a) => [a] -> a
 median x | odd n  = head  $ drop (n `div` 2) x'
          | even n = mean $ take 2 $ drop i x'
@@ -39,38 +41,47 @@ median x | odd n  = head  $ drop (n `div` 2) x'
                         x' = sort x
                         n  = length x
 
--- Modes
--- Returns a sorted list of modes in descending order
+-- |Modes
+-- |Returns a sorted list of modes in descending order
 modes :: (Ord a) => [a] -> [(Int, a)]
 modes xs = sortBy (comparing $ negate.fst) $ map (\x->(length x, head x)) $ (group.sort) xs
 
--- Central moments
+mode :: (Ord a) => [a] -> Maybe a
+mode xs = case m of
+            [] -> Nothing
+            otherwise -> Just . snd $ head m
+    where m = filter (\(a,b) -> a > 1) (modes xs)
+
+-- |Central moments
 centralMoment xs 1 = 0
 centralMoment xs r = (sum (map (\x -> (x-m)^r) xs)) / n
     where
       m = mean xs
       n = fromIntegral $ length xs
 
--- Range
+-- |Range
 range :: (Num a, Ord a) => [a] -> a
 range xs = maximum xs - minimum xs
 
--- Average deviation
+-- |Average deviation
 avgdev :: (Floating a) => [a] -> a
 avgdev xs = mean $ map (\x -> abs(x - m)) xs
     where
       m = mean xs
 
--- Standard deviation
+-- |Standard deviation of sample
 stddev :: (Floating a) => [a] -> a
 stddev xs = sqrt $ var xs
 
--- Population variance
+-- |Standard deviation of population
+stddevp :: (Floating a) => [a] -> a
+stddevp xs = sqrt $ pvar xs
+
+-- |Population variance
 pvar :: (Floating a) => [a] -> a
 pvar xs = centralMoment xs 2
 
--- Numerically stable sample variance
--- This crashes
+-- |Sample variance
 var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
     where
       var' _ _ s [] = s
@@ -79,14 +90,14 @@ var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
            delta = x - m
            nm = m + delta/(fromIntegral $ n + 1)
 
--- Interquartile range
--- XXX: Add case that takes into account even vs odd length
+-- |Interquartile range
+-- |Need to add case that takes into account even vs odd length
 iqr xs = take (length xs - 2*q) $ drop q xs
     where
       q = ((length xs) + 1) `div` 4
 
 -- Kurtosis
-kurtosis xs = ((centralMoment xs 4) / (centralMoment xs 2)^2)-3
+kurt xs = ((centralMoment xs 4) / (centralMoment xs 2)^2)-3
 
 -- |Arbitrary quantile q of an unsorted list.  The quantile /q/ of /N/
 -- |data points is the point whose (zero-based) index in the sorted
@@ -106,18 +117,19 @@ quantileAsc q xs
                                    | idx >= len -> error "Quantile index too large"
                                    | otherwise  -> idx
 
--- Skew
+-- |Calculate skew
 skew xs = (centralMoment xs 3) / (centralMoment xs 2)**(3/2)
 
+-- |Calculates pearson skew
 pearsonSkew1 xs = 3 * (mean xs - mo) / stddev xs
     where
       mo = snd $ head $ modes xs
 
 pearsonSkew2 xs = 3 * (mean xs - median xs) / stddev xs
 
--- Covariance
-cov :: (Floating a) => [a] -> [a] -> a
-cov xs ys = sum (zipWith (*) (map f1 xs) (map f2 ys)) / (n - 1)
+-- |Sample Covariance
+covar :: (Floating a) => [a] -> [a] -> a
+covar xs ys = sum (zipWith (*) (map f1 xs) (map f2 ys)) / (n-1)
     where
       n = fromIntegral $ length $ xs
       m1 = mean xs
@@ -125,16 +137,18 @@ cov xs ys = sum (zipWith (*) (map f1 xs) (map f2 ys)) / (n - 1)
       f1 = \x -> (x - m1)
       f2 = \x -> (x - m2)
 
--- Covariance matrix
+-- |Covariance matrix
 covMatrix :: (Floating a) => [[a]] -> [[a]]
 covMatrix xs =  split' (length xs) cs
     where
-      cs = [ cov a b | a <- xs, b <- xs]
+      cs = [ covar a b | a <- xs, b <- xs]
       split' n = unfoldr (\y -> if null y then Nothing else Just $ splitAt n y)
 
--- Pearson's product-moment correlation coefficient
-corr :: (Floating a) => [a] -> [a] -> a
-corr x y = cov x y / (stddev x * stddev y)
+-- |Pearson's product-moment correlation coefficient
+pearson :: (Floating a) => [a] -> [a] -> a
+pearson x y = covar x y / (stddev x * stddev y)
+
+correl = pearson
 
 -- |Least-squares linear regression of /y/ against /x/ for a
 -- |collection of (/x/, /y/) data, in the form of (/b0/, /b1/, /r/)
@@ -154,3 +168,8 @@ linreg xys = let !xs = map fst xys
                  !beta = (n * sXY - sX * sY) / (n * sXX - sX * sX)
                  !r = (n * sXY - sX * sY) / (sqrt $ (n * sXX - sX^2) * (n * sYY - sY ^ 2))
              in (alpha, beta, r)
+
+
+-- |Returns the sum of square deviations from their sample mean.
+devsq xs = sum $ map (\x->(x-m)**2) xs
+    where m = mean xs
