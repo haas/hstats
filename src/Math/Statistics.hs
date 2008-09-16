@@ -19,10 +19,11 @@ import Data.List
 import Data.Ord (comparing)
 
 -- |Numerically stable mean
--- Thanks dmwit and ddarius for help on strictness issues
 mean :: Floating a => [a] -> a
-mean x       = fst $ foldl' (\(!m, !n) x -> (m+(x-m)/(n+1),n+1)) (0,0) x
+mean x = fst $ foldl' (\(!m, !n) x -> (m+(x-m)/(n+1),n+1)) (0,0) x
 
+-- |Same as 'mean' 
+average :: Floating a => [a] -> a
 average = mean
 
 -- |Harmonic mean
@@ -41,11 +42,11 @@ median x | odd n  = head  $ drop (n `div` 2) x'
                         x' = sort x
                         n  = length x
 
--- |Modes
--- |Returns a sorted list of modes in descending order
+-- |Modes returns a sorted list of modes in descending order
 modes :: (Ord a) => [a] -> [(Int, a)]
 modes xs = sortBy (comparing $ negate.fst) $ map (\x->(length x, head x)) $ (group.sort) xs
 
+-- |Mode returns the mode of the list, otherwise Nothing
 mode :: (Ord a) => [a] -> Maybe a
 mode xs = case m of
             [] -> Nothing
@@ -53,6 +54,7 @@ mode xs = case m of
     where m = filter (\(a,b) -> a > 1) (modes xs)
 
 -- |Central moments
+centralMoment :: (Floating b, Integral t) => [b] -> t -> b
 centralMoment xs 1 = 0
 centralMoment xs r = (sum (map (\x -> (x-m)^r) xs)) / n
     where
@@ -91,7 +93,6 @@ var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
            nm = m + delta/(fromIntegral $ n + 1)
 
 -- |Interquartile range
--- |Need to add case that takes into account even vs odd length
 iqr xs = take (length xs - 2*q) $ drop q xs
     where
       q = ((length xs) + 1) `div` 4
@@ -118,13 +119,16 @@ quantileAsc q xs
                                    | otherwise  -> idx
 
 -- |Calculate skew
+skew :: (Floating b) => [b] -> b
 skew xs = (centralMoment xs 3) / (centralMoment xs 2)**(3/2)
 
 -- |Calculates pearson skew
+pearsonSkew1 :: (Ord a, Floating a) => [a] -> a
 pearsonSkew1 xs = 3 * (mean xs - mo) / stddev xs
     where
       mo = snd $ head $ modes xs
 
+pearsonSkew2 :: (Ord a, Floating a) => [a] -> a
 pearsonSkew2 xs = 3 * (mean xs - median xs) / stddev xs
 
 -- |Sample Covariance
@@ -148,13 +152,14 @@ covMatrix xs =  split' (length xs) cs
 pearson :: (Floating a) => [a] -> [a] -> a
 pearson x y = covar x y / (stddev x * stddev y)
 
+-- |Same as 'pearson'
+correl :: (Floating a) => [a] -> [a] -> a
 correl = pearson
 
 -- |Least-squares linear regression of /y/ against /x/ for a
 -- |collection of (/x/, /y/) data, in the form of (/b0/, /b1/, /r/)
 -- |where the regression is /y/ = /b0/ + /b1/ * /x/ with Pearson
 -- |coefficient /r/
-
 linreg :: (Floating b) => [(b, b)] -> (b, b, b)
 linreg xys = let !xs = map fst xys
                  !ys = map snd xys
@@ -171,5 +176,6 @@ linreg xys = let !xs = map fst xys
 
 
 -- |Returns the sum of square deviations from their sample mean.
+devsq :: (Floating a) => [a] -> a
 devsq xs = sum $ map (\x->(x-m)**2) xs
     where m = mean xs
