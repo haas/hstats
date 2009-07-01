@@ -84,6 +84,7 @@ pvar :: (Floating a) => [a] -> a
 pvar xs = centralMoment xs 2
 
 -- |Unbiased estimate of sample variance
+var :: (Fractional b) => [b] -> b
 var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
     where
       var' _ _ s [] = s
@@ -93,11 +94,13 @@ var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
            nm = m + delta/(fromIntegral $ n + 1)
 
 -- |Interquartile range
+iqr :: [a] -> [a]
 iqr xs = take (length xs - 2*q) $ drop q xs
     where
       q = ((length xs) + 1) `div` 4
 
--- Kurtosis
+-- |Kurtosis
+kurt :: (Floating b) => [b] -> b
 kurt xs = ((centralMoment xs 4) / (centralMoment xs 2)^2)-3
 
 -- |Arbitrary quantile q of an unsorted list.  The quantile /q/ of /N/
