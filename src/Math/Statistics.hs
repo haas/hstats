@@ -71,7 +71,7 @@ avgdev xs = mean $ map (\x -> abs(x - m)) xs
     where
       m = mean xs
 
--- |Standard deviation of sample
+-- | Unbiased estimate of standard deviation of sample
 stddev :: (Floating a) => [a] -> a
 stddev xs = sqrt $ var xs
 
@@ -83,7 +83,7 @@ stddevp xs = sqrt $ pvar xs
 pvar :: (Floating a) => [a] -> a
 pvar xs = centralMoment xs 2
 
--- |Sample variance
+-- |Unbiased estimate of sample variance
 var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
     where
       var' _ _ s [] = s
