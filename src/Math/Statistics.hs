@@ -87,7 +87,7 @@ mode xs = case m of
             otherwise -> Just . snd $ head m
     where m = filter (\(a,b) -> a > 1) (modes xs)
 
--- |Central moments
+-- | /t/ central moment.
 centralMoment :: (Floating b, Integral t) => [b] -> t -> b
 centralMoment xs 1 = 0
 centralMoment xs r = (sum (map (\x -> (x-m)^r) xs)) / n
@@ -95,11 +95,11 @@ centralMoment xs r = (sum (map (\x -> (x-m)^r) xs)) / n
       m = mean xs
       n = fromIntegral $ length xs
 
--- |Range
+-- | Range of sample. (Maximum - minimum value)
 range :: (Num a, Ord a) => [a] -> a
 range xs = maximum xs - minimum xs
 
--- |Average deviation
+-- | Average deviation. I.e. mean of absolute value of deviation from mean.
 avgdev :: (Floating a) => [a] -> a
 avgdev xs = mean $ map (\x -> abs(x - m)) xs
     where
