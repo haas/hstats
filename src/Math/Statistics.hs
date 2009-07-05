@@ -15,6 +15,7 @@
 
 module Math.Statistics ( -- * Different mean variants
                          mean
+                       , meanWgh
                        , average
                        , harmean
                        , geomean
@@ -55,6 +56,10 @@ import Data.Ord (comparing)
 -- |Numerically stable mean
 mean :: Fractional a => [a] -> a
 mean x = fst $ foldl' (\(!m, !n) x -> (m+(x-m)/(n+1),n+1)) (0,0) x
+
+-- | Mean with weight. First element in tuple is element, second its weight
+meanWgh :: Floating a => [(a,a)] -> a 
+meanWgh xs = (sum . map (uncurry (*)) $ xs) / (sum . map snd $ xs)
 
 -- |Same as 'mean' 
 average :: Fractional a => [a] -> a
