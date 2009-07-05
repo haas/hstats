@@ -55,7 +55,9 @@ import Data.Ord (comparing)
 
 -- |Numerically stable mean
 mean :: Fractional a => [a] -> a
-mean x = fst $ foldl' (\(!m, !n) x -> (m+(x-m)/(n+1),n+1)) (0,0) x
+mean x = fst $ foldl' addElement (0,0) x
+    where 
+      addElement (!m,!n) x = (m + (x-m)/(n+1), n+1)
 
 -- | Mean with weight. First element in tuple is element, second its weight
 meanWgh :: Floating a => [(a,a)] -> a 
