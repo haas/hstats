@@ -164,12 +164,13 @@ quantileAsc q xs
 skew :: (Floating b) => [b] -> b
 skew xs = (centralMoment xs 3) / (centralMoment xs 2)**(3/2)
 
--- |Calculates pearson skew
+-- |Calculates first Pearson skewness coeffcient.
 pearsonSkew1 :: (Ord a, Floating a) => [a] -> a
 pearsonSkew1 xs = 3 * (mean xs - mo) / stddev xs
     where
       mo = snd $ head $ modes xs
 
+-- | Calculate second Pearson skewness coeffcient.
 pearsonSkew2 :: (Ord a, Floating a) => [a] -> a
 pearsonSkew2 xs = 3 * (mean xs - median xs) / stddev xs
 
