@@ -88,7 +88,7 @@ mode xs = case m of
     where m = filter (\(a,b) -> a > 1) (modes xs)
 
 -- | /t/ central moment.
-centralMoment :: (Floating b, Integral t) => [b] -> t -> b
+centralMoment :: (Fractional b, Integral t) => [b] -> t -> b
 centralMoment xs 1 = 0
 centralMoment xs r = (sum (map (\x -> (x-m)^r) xs)) / n
     where
@@ -114,7 +114,7 @@ stddevp :: (Floating a) => [a] -> a
 stddevp xs = sqrt $ pvar xs
 
 -- |Population variance
-pvar :: (Floating a) => [a] -> a
+pvar :: (Fractional a) => [a] -> a
 pvar xs = centralMoment xs 2
 
 -- |Unbiased estimate of sample variance
