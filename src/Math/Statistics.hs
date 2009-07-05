@@ -13,7 +13,41 @@
 --   A collection of commonly used statistical functions.
 -----------------------------------------------------------------------------
 
-module Math.Statistics where
+module Math.Statistics ( -- * Different mean variants
+                         mean
+                       , average
+                       , harmean
+                       , geomean
+                       -- * Variance, standard deviation and moments
+                       , stddev
+                       , stddevp
+                       , var
+                       , pvar
+                       , centralMoment
+                       , devsq
+                       -- * Skewness and kurtosis
+                       , skew
+                       , pearsonSkew1
+                       , pearsonSkew2
+                       , kurt
+                       -- * Median, mode and quantiles
+                       , median
+                       , modes
+                       , mode
+                       , iqr
+                       , quantile
+                       , quantileAsc
+                       -- * Other parameters
+                       , range
+                       , avgdev
+                       -- * Covariance and corelation
+                       , covar
+                       , covMatrix
+                       , pearson
+                       , correl
+                       -- * Simple regressions
+                       , linreg
+                       ) where
 
 import Data.List
 import Data.Ord (comparing)
@@ -159,10 +193,10 @@ pearson x y = covar x y / (stddev x * stddev y)
 correl :: (Floating a) => [a] -> [a] -> a
 correl = pearson
 
--- |Least-squares linear regression of /y/ against /x/ for a
--- |collection of (/x/, /y/) data, in the form of (/b0/, /b1/, /r/)
--- |where the regression is /y/ = /b0/ + /b1/ * /x/ with Pearson
--- |coefficient /r/
+-- | Least-squares linear regression of /y/ against /x/ for a
+--   collection of (/x/, /y/) data, in the form of (/b0/, /b1/, /r/)
+--   where the regression is /y/ = /b0/ + /b1/ * /x/ with Pearson
+--   coefficient /r/
 linreg :: (Floating b) => [(b, b)] -> (b, b, b)
 linreg xys = let !xs = map fst xys
                  !ys = map snd xys
