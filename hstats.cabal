@@ -8,9 +8,9 @@ category:            Math
 synopsis:            Statistical Computing in Haskell
 description:         A library of commonly used statistical functions
 maintainer:          mbeddoe@<nospam>gmail.com
-homepage:            http://github.com/unmarshal/hstats/ 
+homepage:            http://github.com/unmarshal/hstats/
 hs-source-dirs:      src
-ghc-options:         -O 
+ghc-options:         -O
 exposed-Modules:     Math.Statistics
 extensions:          BangPatterns
-build-depends:       base>=2.0, haskell98
+build-depends:       base>=2.0
