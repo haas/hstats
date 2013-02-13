@@ -13,21 +13,62 @@
 --   A collection of commonly used statistical functions.
 -----------------------------------------------------------------------------
 
-module Math.Statistics where
+module Math.Statistics ( -- * Different mean variants
+                         mean
+                       , meanWgh
+                       , average
+                       , harmean
+                       , geomean
+                       -- * Variance, standard deviation and moments
+                       , stddev
+                       , stddevp
+                       , var
+                       , pvar
+                       , centralMoment
+                       , devsq
+                       -- * Skewness and kurtosis
+                       , skew
+                       , pearsonSkew1
+                       , pearsonSkew2
+                       , kurt
+                       -- * Median, mode and quantiles
+                       , median
+                       , modes
+                       , mode
+                       , iqr
+                       , quantile
+                       , quantileAsc
+                       -- * Other parameters
+                       , range
+                       , avgdev
+                       -- * Covariance and corelation
+                       , covar
+                       , covMatrix
+                       , pearson
+                       , correl
+                       -- * Simple regressions
+                       , linreg
+                       ) where
 
 import Data.List
 import Data.Ord (comparing)
 
 -- |Numerically stable mean
-mean :: Floating a => [a] -> a
-mean x = fst $ foldl' (\(!m, !n) x -> (m+(x-m)/(n+1),n+1)) (0,0) x
+mean :: Fractional a => [a] -> a
+mean x = fst $ foldl' addElement (0,0) x
+    where 
+      addElement (!m,!n) x = (m + (x-m)/(n+1), n+1)
+
+-- | Mean with weight. First element in tuple is element, second its weight
+meanWgh :: Floating a => [(a,a)] -> a 
+meanWgh xs = (sum . map (uncurry (*)) $ xs) / (sum . map snd $ xs)
 
 -- |Same as 'mean' 
-average :: Floating a => [a] -> a
+average :: Fractional a => [a] -> a
 average = mean
 
 -- |Harmonic mean
-harmean :: (Floating a) => [a] -> a
+harmean :: (Fractional a) => [a] -> a
 harmean xs = fromIntegral (length xs) / (sum $ map (1/) xs)
 
 -- |Geometric mean
@@ -35,7 +76,7 @@ geomean :: (Floating a) => [a] -> a
 geomean xs = (foldr1 (*) xs)**(1 / fromIntegral (length xs))
 
 -- |Median
-median :: (Floating a, Ord a) => [a] -> a
+median :: (Fractional a, Ord a) => [a] -> a
 median x | odd n  = head  $ drop (n `div` 2) x'
          | even n = mean $ take 2 $ drop i x'
                   where i = (length x' `div` 2) - 1
@@ -53,25 +94,25 @@ mode xs = case m of
             otherwise -> Just . snd $ head m
     where m = filter (\(a,b) -> a > 1) (modes xs)
 
--- |Central moments
-centralMoment :: (Floating b, Integral t) => [b] -> t -> b
+-- | /t/ central moment.
+centralMoment :: (Fractional b, Integral t) => [b] -> t -> b
 centralMoment xs 1 = 0
 centralMoment xs r = (sum (map (\x -> (x-m)^r) xs)) / n
     where
       m = mean xs
       n = fromIntegral $ length xs
 
--- |Range
+-- | Range of sample. (Maximum - minimum value)
 range :: (Num a, Ord a) => [a] -> a
 range xs = maximum xs - minimum xs
 
--- |Average deviation
-avgdev :: (Floating a) => [a] -> a
+-- | Average deviation. I.e. mean of absolute value of deviation from mean.
+avgdev :: (Fractional a) => [a] -> a
 avgdev xs = mean $ map (\x -> abs(x - m)) xs
     where
       m = mean xs
 
--- |Standard deviation of sample
+-- | Unbiased estimate of standard deviation of sample
 stddev :: (Floating a) => [a] -> a
 stddev xs = sqrt $ var xs
 
@@ -80,10 +121,11 @@ stddevp :: (Floating a) => [a] -> a
 stddevp xs = sqrt $ pvar xs
 
 -- |Population variance
-pvar :: (Floating a) => [a] -> a
+pvar :: (Fractional a) => [a] -> a
 pvar xs = centralMoment xs 2
 
--- |Sample variance
+-- |Unbiased estimate of sample variance
+var :: (Fractional b) => [b] -> b
 var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
     where
       var' _ _ s [] = s
@@ -93,11 +135,13 @@ var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
            nm = m + delta/(fromIntegral $ n + 1)
 
 -- |Interquartile range
+iqr :: [a] -> [a]
 iqr xs = take (length xs - 2*q) $ drop q xs
     where
       q = ((length xs) + 1) `div` 4
 
--- Kurtosis
+-- |Kurtosis
+kurt :: (Floating b) => [b] -> b
 kurt xs = ((centralMoment xs 4) / (centralMoment xs 2)^2)-3
 
 -- |Arbitrary quantile q of an unsorted list.  The quantile /q/ of /N/
@@ -122,12 +166,13 @@ quantileAsc q xs
 skew :: (Floating b) => [b] -> b
 skew xs = (centralMoment xs 3) / (centralMoment xs 2)**(3/2)
 
--- |Calculates pearson skew
+-- |Calculates first Pearson skewness coeffcient.
 pearsonSkew1 :: (Ord a, Floating a) => [a] -> a
 pearsonSkew1 xs = 3 * (mean xs - mo) / stddev xs
     where
       mo = snd $ head $ modes xs
 
+-- | Calculate second Pearson skewness coeffcient.
 pearsonSkew2 :: (Ord a, Floating a) => [a] -> a
 pearsonSkew2 xs = 3 * (mean xs - median xs) / stddev xs
 
@@ -156,10 +201,10 @@ pearson x y = covar x y / (stddev x * stddev y)
 correl :: (Floating a) => [a] -> [a] -> a
 correl = pearson
 
--- |Least-squares linear regression of /y/ against /x/ for a
--- |collection of (/x/, /y/) data, in the form of (/b0/, /b1/, /r/)
--- |where the regression is /y/ = /b0/ + /b1/ * /x/ with Pearson
--- |coefficient /r/
+-- | Least-squares linear regression of /y/ against /x/ for a
+--   collection of (/x/, /y/) data, in the form of (/b0/, /b1/, /r/)
+--   where the regression is /y/ = /b0/ + /b1/ * /x/ with Pearson
+--   coefficient /r/
 linreg :: (Floating b) => [(b, b)] -> (b, b, b)
 linreg xys = let !xs = map fst xys
                  !ys = map snd xys
