@@ -1,11 +1,10 @@
-{-# OPTIONS_GHC -XBangPatterns #-}
-
+{-# LANGUAGE BangPatterns #-}
 -----------------------------------------------------------------------------
 -- Module      : Math.Statistics
 -- Copyright   : (c) 2008 Marshall Beddoe
 -- License     : BSD3
 --
--- Maintainer  : mbeddoe@<nospam>gmail.com
+-- Maintainer  : bash@chodify.net
 -- Stability   : experimental
 -- Portability : portable
 --
@@ -91,7 +90,7 @@ modes xs = sortBy (comparing $ negate.fst) $ map (\x->(length x, head x)) $ (gro
 mode :: (Ord a) => [a] -> Maybe a
 mode xs = case m of
             [] -> Nothing
-            otherwise -> Just . snd $ head m
+            _  -> Just . snd $ head m
     where m = filter (\(a,b) -> a > 1) (modes xs)
 
 -- | Central moments
@@ -183,8 +182,8 @@ covar xs ys = sum (zipWith (*) (map f1 xs) (map f2 ys)) / (n-1)
       n = fromIntegral $ length $ xs
       m1 = mean xs
       m2 = mean ys
-      f1 = \x -> (x - m1)
-      f2 = \x -> (x - m2)
+      f1 x = x - m1
+      f2 x = x - m2
 
 -- | Covariance matrix
 covMatrix :: (Floating a) => [[a]] -> [[a]]
