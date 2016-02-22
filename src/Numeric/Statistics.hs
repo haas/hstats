@@ -12,42 +12,42 @@
 --   A collection of commonly used statistical functions.
 -----------------------------------------------------------------------------
 
-module Math.Statistics ( -- * Different mean variants
-                         mean
-                       , meanWgh
-                       , average
-                       , harmean
-                       , geomean
-                       -- * Variance, standard deviation and moments
-                       , stddev
-                       , stddevp
-                       , var
-                       , pvar
-                       , centralMoment
-                       , devsq
-                       -- * Skewness and kurtosis
-                       , skew
-                       , pearsonSkew1
-                       , pearsonSkew2
-                       , kurt
-                       -- * Median, mode and quantiles
-                       , median
-                       , modes
-                       , mode
-                       , iqr
-                       , quantile
-                       , quantileAsc
-                       -- * Other parameters
-                       , range
-                       , avgdev
-                       -- * Covariance and corelation
-                       , covar
-                       , covMatrix
-                       , pearson
-                       , correl
-                       -- * Simple regressions
-                       , linreg
-                       ) where
+module Numeric.Statistics ( -- * Different mean variants
+                            mean
+                          , meanWgh
+                          , average
+                          , harmean
+                          , geomean
+                          -- * Variance, standard deviation and moments
+                          , stddev
+                          , stddevp
+                          , var
+                          , pvar
+                          , centralMoment
+                          , devsq
+                          -- * Skewness and kurtosis
+                          , skew
+                          , pearsonSkew1
+                          , pearsonSkew2
+                          , kurt
+                          -- * Median, mode and quantiles
+                          , median
+                          , modes
+                          , mode
+                          , iqr
+                          , quantile
+                          , quantileAsc
+                          -- * Other parameters
+                          , range
+                          , avgdev
+                          -- * Covariance and corelation
+                          , covar
+                          , covMatrix
+                          , pearson
+                          , correl
+                          -- * Simple regressions
+                          , linreg
+                          ) where
 
 import Data.List
 import Data.Ord (comparing)

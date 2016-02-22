@@ -4,14 +4,19 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Marshall Beddoe
 Copyright:           Copyright (c) 2008, Marshall Beddoe
-category:            Math
+category:            Mumeric.Statistics
 synopsis:            Statistical Computing in Haskell
 build-type:          Simple
 description:         A library of commonly used statistical functions
 maintainer:          bash@chordify.net
 homepage:            https://github.com/haas/hstats
-hs-source-dirs:      src
-ghc-options:         -O2
-exposed-Modules:     Math.Statistics
-extensions:          BangPatterns
-build-depends:       base>=3.0
+cabal-version:       >=1.6
+source-repository    head
+  type:                git
+  location:            git@github.com:haas/hstats.git
+
+library
+  build-depends:       base >= 3.0 && < 4.9
+  hs-source-dirs:      src
+  exposed-Modules:     Numeric.Statistics
+  extensions:          BangPatterns
