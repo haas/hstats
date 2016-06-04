@@ -16,7 +16,7 @@ source-repository    head
   location:            git@github.com:haas/hstats.git
 
 library
-  build-depends:       base >= 3.0 && < 4.9
+  build-depends:       base >= 3.0 && < 4.10
   hs-source-dirs:      src
   exposed-Modules:     Numeric.Statistics
   extensions:          BangPatterns
