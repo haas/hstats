@@ -4,7 +4,7 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Marshall Beddoe
 Copyright:           Copyright (c) 2008, Marshall Beddoe
-category:            Mumeric.Statistics
+category:            Numeric.Statistics
 synopsis:            Statistical Computing in Haskell
 build-type:          Simple
 description:         A library of commonly used statistical functions
